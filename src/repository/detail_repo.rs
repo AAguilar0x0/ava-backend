@@ -66,12 +66,9 @@ impl DetailRepo {
 
     pub async fn update_record(
         &self,
-        id: &String,
         new_record: Detail,
     ) -> Result<UpdateResult, (StatusCode, String)> {
-        let obj_id =
-            ObjectId::parse_str(id).map_err(|err| (StatusCode::BAD_REQUEST, err.to_string()))?;
-        let filter = doc! {"_id": obj_id};
+        let filter = doc! {"_id": new_record.id};
         let new_doc = doc! {
             "$set":
                 {
@@ -98,30 +95,12 @@ impl DetailRepo {
     }
 
     pub async fn delete_record(&self, id: &String) -> Result<DeleteResult, (StatusCode, String)> {
-        let obj_id =
-            ObjectId::parse_str(id).map_err(|err| (StatusCode::BAD_REQUEST, err.to_string()))?;
+        let obj_id = ObjectId::parse_str(id)
+            .map_err(|_| (StatusCode::BAD_REQUEST, "Invalid ID".to_owned()))?;
         let filter = doc! {"_id": obj_id};
         let record = self.col.delete_one(filter, None).await.map_err(|err| {
             (
                 match *err.kind {
-                    // ErrorKind::InvalidArgument { message } => todo!(),
-                    // ErrorKind::Authentication { message } => todo!(),
-                    // ErrorKind::BsonDeserialization(_) => todo!(),
-                    // ErrorKind::BsonSerialization(_) => todo!(),
-                    // ErrorKind::BulkWrite(_) => todo!(),
-                    // ErrorKind::Command(_) => todo!(),
-                    // ErrorKind::DnsResolve { message } => todo!(),
-                    // ErrorKind::Internal { message } => todo!(),
-                    // ErrorKind::Io(_) => todo!(),
-                    // ErrorKind::ConnectionPoolCleared { message } => todo!(),
-                    // ErrorKind::InvalidResponse { message } => todo!(),
-                    // ErrorKind::ServerSelection { message } => todo!(),
-                    // ErrorKind::SessionsNotSupported => todo!(),
-                    // ErrorKind::InvalidTlsConfig { message } => todo!(),
-                    // ErrorKind::Write(_) => todo!(),
-                    // ErrorKind::Transaction { message } => todo!(),
-                    // ErrorKind::IncompatibleServer { message } => todo!(),
-                    // ErrorKind::MissingResumeToken => todo!(),
                     _ => StatusCode::INTERNAL_SERVER_ERROR,
                 },
                 err.to_string(),

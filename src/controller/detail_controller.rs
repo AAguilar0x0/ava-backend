@@ -1,12 +1,22 @@
 use crate::{model::detail_model::Detail, repository::detail_repo::DetailRepo};
 use actix_web::{
     delete, get, post, put,
-    web::{Data, Json, Path},
-    HttpResponse, HttpResponseBuilder,
+    web::{self, Data, Json, Path},
+    HttpResponse, HttpResponseBuilder, Scope,
 };
 use mongodb::bson::oid::ObjectId;
 
-#[post("/detail")]
+pub fn new(db_data: Data<DetailRepo>) -> Scope {
+    web::scope("/detail")
+        .app_data(db_data)
+        .service(create_detail)
+        .service(get_all_detail)
+        .service(get_detail)
+        .service(update_detail)
+        .service(delete_detail)
+}
+
+#[post("")]
 pub async fn create_detail(db: Data<DetailRepo>, new_detail: Json<Detail>) -> HttpResponse {
     let data = Detail {
         id: None,
@@ -23,7 +33,17 @@ pub async fn create_detail(db: Data<DetailRepo>, new_detail: Json<Detail>) -> Ht
     }
 }
 
-#[get("/detail/{id}")]
+#[get("")]
+pub async fn get_all_detail(db: Data<DetailRepo>) -> HttpResponse {
+    let result = db.get_all_record().await;
+
+    match result {
+        Ok(details) => HttpResponse::Ok().json(details),
+        Err((status_code, err)) => HttpResponseBuilder::new(status_code).json(err),
+    }
+}
+
+#[get("/{id}")]
 pub async fn get_detail(db: Data<DetailRepo>, path: Path<String>) -> HttpResponse {
     let id = path.into_inner();
     if id.is_empty() {
@@ -37,7 +57,7 @@ pub async fn get_detail(db: Data<DetailRepo>, path: Path<String>) -> HttpRespons
     }
 }
 
-#[put("/detail/{id}")]
+#[put("/{id}")]
 pub async fn update_detail(
     db: Data<DetailRepo>,
     path: Path<String>,
@@ -50,14 +70,15 @@ pub async fn update_detail(
     let data = Detail {
         id: Some(match ObjectId::parse_str(&id) {
             Ok(id) => id,
-            Err(err) => return HttpResponse::BadRequest().json(err.to_string()),
+            Err(_) => return HttpResponse::BadRequest().json("Invalid ID".to_owned()),
         }),
         name: new_detail.name.to_owned(),
         description: new_detail.description.to_owned(),
         image: new_detail.image.to_owned(),
     };
 
-    let result = db.update_record(&id, data).await;
+    // data.id.unwrap() is safe since the error variant is already handled
+    let result = db.update_record(data).await;
 
     match result {
         Ok(update) => {
@@ -76,7 +97,7 @@ pub async fn update_detail(
     }
 }
 
-#[delete("/detail/{id}")]
+#[delete("/{id}")]
 pub async fn delete_detail(db: Data<DetailRepo>, path: Path<String>) -> HttpResponse {
     let id = path.into_inner();
     if id.is_empty() {
@@ -92,16 +113,6 @@ pub async fn delete_detail(db: Data<DetailRepo>, path: Path<String>) -> HttpResp
                 return HttpResponse::NotFound().json("Detail with specified ID not found!");
             }
         }
-        Err((status_code, err)) => HttpResponseBuilder::new(status_code).json(err),
-    }
-}
-
-#[get("/details")]
-pub async fn get_all_detail(db: Data<DetailRepo>) -> HttpResponse {
-    let result = db.get_all_record().await;
-
-    match result {
-        Ok(details) => HttpResponse::Ok().json(details),
         Err((status_code, err)) => HttpResponseBuilder::new(status_code).json(err),
     }
 }
