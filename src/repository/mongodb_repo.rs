@@ -9,7 +9,7 @@ use mongodb::{
     bson::{doc, oid::ObjectId, Document},
     error::ErrorKind,
     results::{DeleteResult, InsertOneResult, UpdateResult},
-    Client, Collection,
+    Client, Collection, Database,
 };
 use serde::{de::DeserializeOwned, Serialize};
 
@@ -18,18 +18,22 @@ pub struct MongoDB<T> {
     name: String,
 }
 
+pub async fn new(database: &str) -> Database {
+    info!("Initializing MongoDB Database...");
+    let uri = env::var("MONGOURI").map_err(|err| err.to_string()).unwrap();
+    info!("Connecting to MongoDB at {}", uri);
+    let client = Client::with_uri_str(uri)
+        .await
+        .expect("error connecting to database");
+    client.database(database)
+}
+
 impl<T> MongoDB<T>
 where
     T: Serialize + DeserializeOwned + Unpin + Send + Sync,
 {
-    pub async fn init(collection: &str) -> Self {
-        info!("Initializing MongoDB Repo...");
-        let uri = env::var("MONGOURI").map_err(|err| err.to_string()).unwrap();
-        info!("Connecting to MongoDB at {}", uri);
-        let client = Client::with_uri_str(uri)
-            .await
-            .expect("error connecting to database");
-        let db = client.database("ava");
+    pub async fn init(db: &mut Database, collection: &str) -> Self {
+        info!("Initializing MongoDB Collection: {}", collection);
         let col: Collection<T> = db.collection(collection);
         MongoDB {
             col,
