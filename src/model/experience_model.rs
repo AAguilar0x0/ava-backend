@@ -1,4 +1,4 @@
-use mongodb::bson::{oid::ObjectId, DateTime};
+use mongodb::bson::oid::ObjectId;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -8,8 +8,8 @@ pub struct Experience {
     pub role: String,
     pub company: String,
     pub description: String,
-    pub start: DateTime,
-    pub end: DateTime,
+    pub start: u32,
+    pub end: u32,
     pub tech_stack: Vec<String>,
 }
 
@@ -22,9 +22,9 @@ pub struct ExperienceUpdate {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub start: Option<DateTime>,
+    pub start: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub end: Option<DateTime>,
+    pub end: Option<u32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tech_stack: Option<Vec<String>>,
 }
