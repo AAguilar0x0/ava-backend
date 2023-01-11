@@ -2,7 +2,6 @@ use std::env;
 extern crate dotenv;
 
 use actix_web::http::StatusCode;
-use dotenv::dotenv;
 
 use futures::stream::TryStreamExt;
 use mongodb::{
@@ -23,7 +22,6 @@ where
     T: Serialize + DeserializeOwned + Unpin + Send + Sync,
 {
     pub async fn init(collection: &str) -> Self {
-        dotenv().ok();
         let uri = env::var("MONGOURI").map_err(|err| err.to_string()).unwrap();
         let client = Client::with_uri_str(uri)
             .await
