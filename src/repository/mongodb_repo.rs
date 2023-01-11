@@ -96,12 +96,31 @@ where
 
     pub async fn update_record(
         &self,
-        filter: Document,
+        id: &str,
         new_record: Document,
     ) -> Result<UpdateResult, (StatusCode, String)> {
+        let obj_id = match ObjectId::parse_str(id) {
+            Ok(id) => id,
+            Err(_) => {
+                return Err((
+                    StatusCode::BAD_REQUEST,
+                    format!("{} MongoDB Repo Error: Invalid ID", self.name),
+                ))
+            }
+        };
+        if new_record.is_empty() {
+            return Err((
+                StatusCode::BAD_REQUEST,
+                "No schema data fields to update".to_owned(),
+            ));
+        }
+        let filter = doc! {"_id": obj_id};
+        let new_doc = doc! {
+            "$set": new_record,
+        };
         let updated_doc = self
             .col
-            .update_one(filter, new_record, None)
+            .update_one(filter, new_doc, None)
             .await
             .map_err(|err| {
                 (
