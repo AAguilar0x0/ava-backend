@@ -1,1 +1,1 @@
-pub mod detail_repo;
+pub mod mongodb_repo;

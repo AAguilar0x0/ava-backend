@@ -1,4 +1,4 @@
-use crate::{model::detail_model::Detail, repository::detail_repo::DetailRepo};
+use crate::{model::detail_model::Detail, repository::mongodb_repo::MongoDB};
 use actix_web::{
     delete, get, post, put,
     web::{self, Data, Json, Path},
@@ -6,7 +6,7 @@ use actix_web::{
 };
 use mongodb::bson::{doc, oid::ObjectId};
 
-pub fn new(db_data: Data<DetailRepo>) -> Scope {
+pub fn new(db_data: Data<MongoDB<Detail>>) -> Scope {
     web::scope("/detail")
         .app_data(db_data)
         .service(create_detail)
@@ -17,7 +17,7 @@ pub fn new(db_data: Data<DetailRepo>) -> Scope {
 }
 
 #[post("")]
-pub async fn create_detail(db: Data<DetailRepo>, new_detail: Json<Detail>) -> HttpResponse {
+pub async fn create_detail(db: Data<MongoDB<Detail>>, new_detail: Json<Detail>) -> HttpResponse {
     let data = Detail {
         id: None,
         name: new_detail.name.to_owned(),
@@ -34,7 +34,7 @@ pub async fn create_detail(db: Data<DetailRepo>, new_detail: Json<Detail>) -> Ht
 }
 
 #[get("")]
-pub async fn get_all_detail(db: Data<DetailRepo>) -> HttpResponse {
+pub async fn get_all_detail(db: Data<MongoDB<Detail>>) -> HttpResponse {
     let result = db.get_all_record().await;
 
     match result {
@@ -44,7 +44,7 @@ pub async fn get_all_detail(db: Data<DetailRepo>) -> HttpResponse {
 }
 
 #[get("/{id}")]
-pub async fn get_detail(db: Data<DetailRepo>, path: Path<String>) -> HttpResponse {
+pub async fn get_detail(db: Data<MongoDB<Detail>>, path: Path<String>) -> HttpResponse {
     let id = path.into_inner();
     if id.is_empty() {
         return HttpResponse::BadRequest().json("Invalid ID");
@@ -59,7 +59,7 @@ pub async fn get_detail(db: Data<DetailRepo>, path: Path<String>) -> HttpRespons
 
 #[put("/{id}")]
 pub async fn update_detail(
-    db: Data<DetailRepo>,
+    db: Data<MongoDB<Detail>>,
     path: Path<String>,
     new_detail: Json<Detail>,
 ) -> HttpResponse {
@@ -87,8 +87,6 @@ pub async fn update_detail(
                 "image": data.image,
             },
     };
-
-    // data.id.unwrap() is safe since the error variant is already handled
     let result = db.update_record(filter, new_doc).await;
 
     match result {
@@ -109,7 +107,7 @@ pub async fn update_detail(
 }
 
 #[delete("/{id}")]
-pub async fn delete_detail(db: Data<DetailRepo>, path: Path<String>) -> HttpResponse {
+pub async fn delete_detail(db: Data<MongoDB<Detail>>, path: Path<String>) -> HttpResponse {
     let id = path.into_inner();
     if id.is_empty() {
         return HttpResponse::BadRequest().json("Invalid ID");
