@@ -9,7 +9,7 @@ use repository::detail_repo::DetailRepo;
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     // work around for unstable async closure
-    let db = DetailRepo::init().await;
+    let db = DetailRepo::init("Detail").await;
     let db_data = Data::new(db);
     HttpServer::new(move || App::new().service(detail_controller::new(db_data.clone())))
         .bind(("0.0.0.0", 8080))?

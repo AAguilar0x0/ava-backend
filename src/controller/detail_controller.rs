@@ -4,7 +4,7 @@ use actix_web::{
     web::{self, Data, Json, Path},
     HttpResponse, HttpResponseBuilder, Scope,
 };
-use mongodb::bson::oid::ObjectId;
+use mongodb::bson::{doc, oid::ObjectId};
 
 pub fn new(db_data: Data<DetailRepo>) -> Scope {
     web::scope("/detail")
@@ -77,8 +77,19 @@ pub async fn update_detail(
         image: new_detail.image.to_owned(),
     };
 
+    let filter = doc! {"_id": data.id};
+    let new_doc = doc! {
+        "$set":
+            {
+                "id": data.id,
+                "name": data.name,
+                "description": data.description,
+                "image": data.image,
+            },
+    };
+
     // data.id.unwrap() is safe since the error variant is already handled
-    let result = db.update_record(data).await;
+    let result = db.update_record(filter, new_doc).await;
 
     match result {
         Ok(update) => {
