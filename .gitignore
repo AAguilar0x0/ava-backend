@@ -10,3 +10,6 @@
 
 # Environment variable
 .env
+
+# Macos
+**/.DS_Store

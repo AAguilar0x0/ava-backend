@@ -8,6 +8,7 @@ use controller::{
 };
 use dotenv::dotenv;
 use env_logger::Env;
+use log::info;
 use model::{
     detail_model::Detail, experience_model::Experience, project_model::Project,
     tech_stack_model::TechStack,
@@ -18,11 +19,12 @@ use repository::mongodb_repo::MongoDB;
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
     env_logger::init_from_env(Env::default().default_filter_or("info"));
-
+    info!("Initializing database...");
     let detail_db_data = Data::new(MongoDB::<Detail>::init("Detail").await);
     let tech_stack_db_data = Data::new(MongoDB::<TechStack>::init("TechStack").await);
     let project_db_data = Data::new(MongoDB::<Project>::init("Project").await);
     let experience_db_data = Data::new(MongoDB::<Experience>::init("Experience").await);
+    info!("Starting server...");
     HttpServer::new(move || {
         App::new()
             .wrap(Logger::default())

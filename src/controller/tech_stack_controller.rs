@@ -8,8 +8,10 @@ use actix_web::{
     web::{self, Data, Json, Path},
     HttpResponse, Scope,
 };
+// use log::info;
 
 pub fn new() -> Scope {
+    // info!("Initializing tech_stack controller...");
     web::scope("/tech_stack")
         .service(create_detail)
         .service(get_all_detail)

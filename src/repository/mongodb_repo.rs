@@ -4,6 +4,7 @@ extern crate dotenv;
 use actix_web::http::StatusCode;
 
 use futures::stream::TryStreamExt;
+use log::info;
 use mongodb::{
     bson::{doc, oid::ObjectId, Document},
     error::ErrorKind,
@@ -22,7 +23,9 @@ where
     T: Serialize + DeserializeOwned + Unpin + Send + Sync,
 {
     pub async fn init(collection: &str) -> Self {
+        info!("Initializing MongoDB Repo...");
         let uri = env::var("MONGOURI").map_err(|err| err.to_string()).unwrap();
+        info!("Connecting to MongoDB at {}", uri);
         let client = Client::with_uri_str(uri)
             .await
             .expect("error connecting to database");
