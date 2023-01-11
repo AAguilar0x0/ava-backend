@@ -46,7 +46,7 @@ where
                     ErrorKind::InvalidArgument { .. } => StatusCode::BAD_REQUEST,
                     _ => StatusCode::INTERNAL_SERVER_ERROR,
                 },
-                format!("{} MongoDB Repo Error: {}", self.name, err.to_string()),
+                format!("{} MongoDB Repo Error: {}", self.name, err),
             )
         })?;
 
@@ -57,14 +57,14 @@ where
         let mut cursors = self.col.find(None, None).await.map_err(|err| {
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                format!("{} MongoDB Repo Error: {}", self.name, err.to_string()),
+                format!("{} MongoDB Repo Error: {}", self.name, err),
             )
         })?;
         let mut records = Vec::new();
         while let Some(record) = cursors.try_next().await.map_err(|err| {
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                format!("{} MongoDB Repo Error: {}", self.name, err.to_string()),
+                format!("{} MongoDB Repo Error: {}", self.name, err),
             )
         })? {
             records.push(record)
@@ -86,14 +86,14 @@ where
                     ErrorKind::InvalidArgument { .. } => StatusCode::BAD_REQUEST,
                     _ => StatusCode::INTERNAL_SERVER_ERROR,
                 },
-                format!("{} MongoDB Repo Error: {}", self.name, err.to_string()),
+                format!("{} MongoDB Repo Error: {}", self.name, err),
             )
         })?;
 
-        Ok(record.ok_or((
+        record.ok_or((
             StatusCode::NOT_FOUND,
             format!("{} MongoDB Repo Error: ID not found", self.name),
-        ))?)
+        ))
     }
 
     pub async fn update_record(
@@ -111,7 +111,7 @@ where
                         ErrorKind::InvalidArgument { .. } => StatusCode::BAD_REQUEST,
                         _ => StatusCode::INTERNAL_SERVER_ERROR,
                     },
-                    format!("{} MongoDB Repo Error: {}", self.name, err.to_string()),
+                    format!("{} MongoDB Repo Error: {}", self.name, err),
                 )
             })?;
         Ok(updated_doc)
@@ -127,10 +127,8 @@ where
         let filter = doc! {"_id": obj_id};
         let record = self.col.delete_one(filter, None).await.map_err(|err| {
             (
-                match *err.kind {
-                    _ => StatusCode::INTERNAL_SERVER_ERROR,
-                },
-                format!("{} MongoDB Repo Error: {}", self.name, err.to_string()),
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("{} MongoDB Repo Error: {}", self.name, err),
             )
         })?;
 

@@ -1,4 +1,4 @@
-use crate::{model::detail_model::Detail, repository::mongodb_repo::MongoDB};
+use crate::{model::tech_stack_model::TechStack, repository::mongodb_repo::MongoDB};
 use actix_web::{
     delete, get, post, put,
     web::{self, Data, Json, Path},
@@ -7,7 +7,7 @@ use actix_web::{
 use mongodb::bson::{doc, oid::ObjectId};
 
 pub fn new() -> Scope {
-    web::scope("/detail")
+    web::scope("/tech_stack")
         .service(create_detail)
         .service(get_all_detail)
         .service(get_detail)
@@ -16,12 +16,14 @@ pub fn new() -> Scope {
 }
 
 #[post("")]
-pub async fn create_detail(db: Data<MongoDB<Detail>>, new_detail: Json<Detail>) -> HttpResponse {
-    let data = Detail {
+pub async fn create_detail(
+    db: Data<MongoDB<TechStack>>,
+    new_detail: Json<TechStack>,
+) -> HttpResponse {
+    let data = TechStack {
         id: None,
         name: new_detail.name.to_owned(),
-        description: new_detail.description.to_owned(),
-        image: new_detail.image.to_owned(),
+        category: new_detail.category.to_owned(),
     };
 
     let result = db.create_record(data).await;
@@ -33,7 +35,7 @@ pub async fn create_detail(db: Data<MongoDB<Detail>>, new_detail: Json<Detail>) 
 }
 
 #[get("")]
-pub async fn get_all_detail(db: Data<MongoDB<Detail>>) -> HttpResponse {
+pub async fn get_all_detail(db: Data<MongoDB<TechStack>>) -> HttpResponse {
     let result = db.get_all_record().await;
 
     match result {
@@ -43,7 +45,7 @@ pub async fn get_all_detail(db: Data<MongoDB<Detail>>) -> HttpResponse {
 }
 
 #[get("/{id}")]
-pub async fn get_detail(db: Data<MongoDB<Detail>>, path: Path<String>) -> HttpResponse {
+pub async fn get_detail(db: Data<MongoDB<TechStack>>, path: Path<String>) -> HttpResponse {
     let id = path.into_inner();
     if id.is_empty() {
         return HttpResponse::BadRequest().json("Invalid ID");
@@ -58,22 +60,21 @@ pub async fn get_detail(db: Data<MongoDB<Detail>>, path: Path<String>) -> HttpRe
 
 #[put("/{id}")]
 pub async fn update_detail(
-    db: Data<MongoDB<Detail>>,
+    db: Data<MongoDB<TechStack>>,
     path: Path<String>,
-    new_detail: Json<Detail>,
+    new_detail: Json<TechStack>,
 ) -> HttpResponse {
     let id = path.into_inner();
     if id.is_empty() {
         return HttpResponse::BadRequest().json("Invalid ID");
     };
-    let data = Detail {
+    let data = TechStack {
         id: Some(match ObjectId::parse_str(&id) {
             Ok(id) => id,
             Err(_) => return HttpResponse::BadRequest().json("Invalid ID".to_owned()),
         }),
         name: new_detail.name.to_owned(),
-        description: new_detail.description.to_owned(),
-        image: new_detail.image.to_owned(),
+        category: new_detail.category.to_owned(),
     };
 
     let filter = doc! {"_id": data.id};
@@ -82,8 +83,7 @@ pub async fn update_detail(
             {
                 "id": data.id,
                 "name": data.name,
-                "description": data.description,
-                "image": data.image,
+                "category": data.category,
             },
     };
     let result = db.update_record(filter, new_doc).await;
@@ -106,7 +106,7 @@ pub async fn update_detail(
 }
 
 #[delete("/{id}")]
-pub async fn delete_detail(db: Data<MongoDB<Detail>>, path: Path<String>) -> HttpResponse {
+pub async fn delete_detail(db: Data<MongoDB<TechStack>>, path: Path<String>) -> HttpResponse {
     let id = path.into_inner();
     if id.is_empty() {
         return HttpResponse::BadRequest().json("Invalid ID");
