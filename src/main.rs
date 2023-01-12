@@ -2,7 +2,11 @@ mod controller;
 mod model;
 mod repository;
 
-use actix_web::{middleware::Logger, web::Data, App, HttpServer};
+use actix_web::{
+    middleware::Logger,
+    web::{self, Data},
+    App, HttpServer,
+};
 use controller::{
     detail_controller, experience_controller, project_controller, tech_stack_controller,
 };
@@ -33,10 +37,13 @@ async fn main() -> std::io::Result<()> {
             .app_data(tech_stack_db_data.clone())
             .app_data(project_db_data.clone())
             .app_data(experience_db_data.clone())
-            .service(detail_controller::new())
-            .service(tech_stack_controller::new())
-            .service(project_controller::new())
-            .service(experience_controller::new())
+            .service(
+                web::scope("/api")
+                    .service(detail_controller::new())
+                    .service(tech_stack_controller::new())
+                    .service(project_controller::new())
+                    .service(experience_controller::new()),
+            )
     })
     .bind(("0.0.0.0", 8080))?
     .run()
