@@ -3,7 +3,7 @@ use actix_web::{
     web::{Data, Json, Path},
     HttpResponse, HttpResponseBuilder,
 };
-use mongodb::bson::to_document;
+use mongodb::bson::{doc, to_document};
 use serde::{de::DeserializeOwned, Serialize};
 
 pub async fn create_detail<T>(db: Data<MongoDB<T>>, data: T) -> HttpResponse
@@ -13,7 +13,10 @@ where
     let result = db.create_record(data).await;
 
     match result {
-        Ok(detail) => HttpResponse::Ok().json(detail),
+        Ok(detail) => match detail.inserted_id.as_object_id() {
+            Some(object_id) => HttpResponse::Ok().json(doc! { "id": object_id.to_string() }),
+            None => HttpResponse::Ok().json(detail),
+        },
         Err((status_code, err)) => HttpResponseBuilder::new(status_code).json(err),
     }
 }

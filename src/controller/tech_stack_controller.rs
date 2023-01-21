@@ -10,7 +10,7 @@ use actix_web::{
 };
 
 pub fn new() -> Scope {
-    web::scope("/tech-stack")
+    web::scope("/tech-stacks")
         .service(create_detail)
         .service(get_all_detail)
         .service(get_detail)
