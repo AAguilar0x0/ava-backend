@@ -21,7 +21,7 @@ pub fn new() -> Scope {
 #[post("")]
 pub async fn create_detail(db: Data<MongoDB<Project>>, new_detail: Json<Project>) -> HttpResponse {
     let data = Project {
-        id: None,
+        _id: None,
         name: new_detail.name.to_owned(),
         company: new_detail.company.to_owned(),
         repo: new_detail.repo.to_owned(),

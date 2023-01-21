@@ -24,7 +24,7 @@ pub async fn create_detail(
     new_detail: Json<Experience>,
 ) -> HttpResponse {
     let data = Experience {
-        id: None,
+        _id: None,
         role: new_detail.role.to_owned(),
         company: new_detail.company.to_owned(),
         description: new_detail.description.to_owned(),

@@ -24,7 +24,7 @@ pub async fn create_detail(
     new_detail: Json<TechStack>,
 ) -> HttpResponse {
     let data = TechStack {
-        id: None,
+        _id: None,
         name: new_detail.name.to_owned(),
         category: new_detail.category.to_owned(),
     };
