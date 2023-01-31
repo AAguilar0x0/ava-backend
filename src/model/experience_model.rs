@@ -13,9 +13,9 @@ pub struct Experience {
     pub role: String,
     pub company: String,
     pub description: String,
-    pub start: u32,
-    pub end: u32,
-    pub tech_stack: Vec<String>,
+    pub start: String,
+    pub end: String,
+    pub tech_stacks: Vec<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
