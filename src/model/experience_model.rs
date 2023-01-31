@@ -27,9 +27,9 @@ pub struct ExperienceUpdate {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub start: Option<u32>,
+    pub start: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub end: Option<u32>,
+    pub end: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tech_stack: Option<Vec<String>>,
 }
