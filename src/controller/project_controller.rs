@@ -26,7 +26,7 @@ pub async fn create_detail(db: Data<MongoDB<Project>>, new_detail: Json<Project>
         company: new_detail.company.to_owned(),
         repo: new_detail.repo.to_owned(),
         url: new_detail.url.to_owned(),
-        tech_stacks: new_detail.tech_stacks.to_owned(),
+        tech_stack: new_detail.tech_stack.to_owned(),
     };
     crud_controller::create_detail(db, data).await
 }

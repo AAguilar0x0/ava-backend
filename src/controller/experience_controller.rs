@@ -30,7 +30,7 @@ pub async fn create_detail(
         description: new_detail.description.to_owned(),
         start: new_detail.start.to_owned(),
         end: new_detail.end.to_owned(),
-        tech_stacks: new_detail.tech_stacks.to_owned(),
+        tech_stack: new_detail.tech_stack.to_owned(),
     };
     crud_controller::create_detail(db, data).await
 }

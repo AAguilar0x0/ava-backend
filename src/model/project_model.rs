@@ -14,7 +14,7 @@ pub struct Project {
     pub company: String,
     pub repo: String,
     pub url: String,
-    pub tech_stacks: Vec<String>,
+    pub tech_stack: Vec<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
