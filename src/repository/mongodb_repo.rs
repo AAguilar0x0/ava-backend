@@ -1,8 +1,6 @@
 use std::env;
 extern crate dotenv;
-
 use actix_web::http::StatusCode;
-
 use futures::stream::TryStreamExt;
 use log::info;
 use mongodb::{
@@ -75,6 +73,43 @@ where
             records.push(record)
         }
         Ok(records)
+    }
+
+    // WILL BE USED IN THE FUTURE
+    // pub async fn find_record(&self, filter: Document) -> Result<Vec<T>, (StatusCode, String)> {
+    //     let mut cursors = self.col.find(filter, None).await.map_err(|err| {
+    //         (
+    //             StatusCode::INTERNAL_SERVER_ERROR,
+    //             format!("{} MongoDB Repo Error: {}", self.name, err),
+    //         )
+    //     })?;
+    //     let mut records = Vec::new();
+    //     while let Some(record) = cursors.try_next().await.map_err(|err| {
+    //         (
+    //             StatusCode::INTERNAL_SERVER_ERROR,
+    //             format!("{} MongoDB Repo Error: {}", self.name, err),
+    //         )
+    //     })? {
+    //         records.push(record)
+    //     }
+    //     Ok(records)
+    // }
+
+    pub async fn find_one_record(&self, filter: Document) -> Result<T, (StatusCode, String)> {
+        let record = self.col.find_one(filter, None).await.map_err(|err| {
+            (
+                match *err.kind {
+                    ErrorKind::InvalidArgument { .. } => StatusCode::BAD_REQUEST,
+                    _ => StatusCode::INTERNAL_SERVER_ERROR,
+                },
+                format!("{} MongoDB Repo Error: {}", self.name, err),
+            )
+        })?;
+
+        record.ok_or((
+            StatusCode::NOT_FOUND,
+            format!("{} MongoDB Repo Error: ID not found", self.name),
+        ))
     }
 
     pub async fn get_record(&self, id: &str) -> Result<T, (StatusCode, String)> {

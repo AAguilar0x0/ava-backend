@@ -9,13 +9,14 @@ use actix_web::{
 };
 use controller::{
     detail_controller, experience_controller, project_controller, tech_stack_controller,
+    user_controller,
 };
 use dotenv::dotenv;
 use env_logger::Env;
 use log::info;
 use model::{
     detail_model::Detail, experience_model::Experience, project_model::Project,
-    tech_stack_model::TechStack,
+    tech_stack_model::TechStack, user_model::User,
 };
 use repository::mongodb_repo::{new, MongoDB};
 
@@ -29,6 +30,7 @@ async fn main() -> std::io::Result<()> {
     let tech_stack_db_data = Data::new(MongoDB::<TechStack>::init(&mut db, "TechStack").await);
     let project_db_data = Data::new(MongoDB::<Project>::init(&mut db, "Project").await);
     let experience_db_data = Data::new(MongoDB::<Experience>::init(&mut db, "Experience").await);
+    let user_db_data = Data::new(MongoDB::<User>::init(&mut db, "User").await);
     info!("Starting server...");
     HttpServer::new(move || {
         App::new()
@@ -37,12 +39,14 @@ async fn main() -> std::io::Result<()> {
             .app_data(tech_stack_db_data.clone())
             .app_data(project_db_data.clone())
             .app_data(experience_db_data.clone())
+            .app_data(user_db_data.clone())
             .service(
                 web::scope("/api")
                     .service(detail_controller::new())
                     .service(tech_stack_controller::new())
                     .service(project_controller::new())
-                    .service(experience_controller::new()),
+                    .service(experience_controller::new())
+                    .service(user_controller::new()),
             )
     })
     .bind(("0.0.0.0", 8080))?

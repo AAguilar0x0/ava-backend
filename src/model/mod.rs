@@ -5,6 +5,7 @@ pub mod detail_model;
 pub mod experience_model;
 pub mod project_model;
 pub mod tech_stack_model;
+pub mod user_model;
 
 fn serialize_object_id<S>(object_id: &Option<ObjectId>, serializer: S) -> Result<S::Ok, S::Error>
 where
