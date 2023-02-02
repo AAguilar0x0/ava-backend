@@ -11,7 +11,7 @@ pub struct Project {
     )]
     pub _id: Option<ObjectId>,
     pub name: String,
-    pub company: String,
+    pub description: String,
     pub repo: String,
     pub url: String,
     pub tech_stack: Vec<String>,
@@ -22,7 +22,7 @@ pub struct ProjectUpdate {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub company: Option<String>,
+    pub description: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub repo: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]

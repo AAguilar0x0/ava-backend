@@ -11,46 +11,49 @@ use actix_web::{
 
 pub fn new() -> Scope {
     web::scope("/projects")
-        .service(create_detail)
-        .service(get_all_detail)
-        .service(get_detail)
-        .service(update_detail)
-        .service(delete_detail)
+        .service(create_project)
+        .service(get_all_project)
+        .service(get_project)
+        .service(update_project)
+        .service(delete_project)
 }
 
 #[post("")]
-pub async fn create_detail(db: Data<MongoDB<Project>>, new_detail: Json<Project>) -> HttpResponse {
+pub async fn create_project(
+    db: Data<MongoDB<Project>>,
+    new_project: Json<Project>,
+) -> HttpResponse {
     let data = Project {
         _id: None,
-        name: new_detail.name.to_owned(),
-        company: new_detail.company.to_owned(),
-        repo: new_detail.repo.to_owned(),
-        url: new_detail.url.to_owned(),
-        tech_stack: new_detail.tech_stack.to_owned(),
+        name: new_project.name.to_owned(),
+        description: new_project.description.to_owned(),
+        repo: new_project.repo.to_owned(),
+        url: new_project.url.to_owned(),
+        tech_stack: new_project.tech_stack.to_owned(),
     };
     crud_controller::create(db, data).await
 }
 
 #[get("")]
-pub async fn get_all_detail(db: Data<MongoDB<Project>>) -> HttpResponse {
+pub async fn get_all_project(db: Data<MongoDB<Project>>) -> HttpResponse {
     crud_controller::get_all(db).await
 }
 
 #[get("/{id}")]
-pub async fn get_detail(db: Data<MongoDB<Project>>, path: Path<String>) -> HttpResponse {
+pub async fn get_project(db: Data<MongoDB<Project>>, path: Path<String>) -> HttpResponse {
     crud_controller::get(db, path).await
 }
 
 #[put("/{id}")]
-pub async fn update_detail(
+pub async fn update_project(
     db: Data<MongoDB<Project>>,
     path: Path<String>,
-    new_detail: Json<ProjectUpdate>,
+    new_project: Json<ProjectUpdate>,
 ) -> HttpResponse {
-    crud_controller::update(db, path, new_detail).await
+    crud_controller::update(db, path, new_project).await
 }
 
 #[delete("/{id}")]
-pub async fn delete_detail(db: Data<MongoDB<Project>>, path: Path<String>) -> HttpResponse {
+pub async fn delete_project(db: Data<MongoDB<Project>>, path: Path<String>) -> HttpResponse {
     crud_controller::delete(db, path).await
 }

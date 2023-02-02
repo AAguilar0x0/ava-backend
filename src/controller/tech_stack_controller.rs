@@ -10,47 +10,47 @@ use actix_web::{
 };
 
 pub fn new() -> Scope {
-    web::scope("/tech-stacks")
-        .service(create_detail)
-        .service(get_all_detail)
-        .service(get_detail)
-        .service(update_detail)
-        .service(delete_detail)
+    web::scope("/tech-stack")
+        .service(create_tech_stack)
+        .service(get_all_tech_stack)
+        .service(get_tech_stack)
+        .service(update_tech_stack)
+        .service(delete_tech_stack)
 }
 
 #[post("")]
-pub async fn create_detail(
+pub async fn create_tech_stack(
     db: Data<MongoDB<TechStack>>,
-    new_detail: Json<TechStack>,
+    new_tech_stack: Json<TechStack>,
 ) -> HttpResponse {
     let data = TechStack {
         _id: None,
-        name: new_detail.name.to_owned(),
-        category: new_detail.category.to_owned(),
+        name: new_tech_stack.name.to_owned(),
+        category: new_tech_stack.category.to_owned(),
     };
     crud_controller::create(db, data).await
 }
 
 #[get("")]
-pub async fn get_all_detail(db: Data<MongoDB<TechStack>>) -> HttpResponse {
+pub async fn get_all_tech_stack(db: Data<MongoDB<TechStack>>) -> HttpResponse {
     crud_controller::get_all(db).await
 }
 
 #[get("/{id}")]
-pub async fn get_detail(db: Data<MongoDB<TechStack>>, path: Path<String>) -> HttpResponse {
+pub async fn get_tech_stack(db: Data<MongoDB<TechStack>>, path: Path<String>) -> HttpResponse {
     crud_controller::get(db, path).await
 }
 
 #[put("/{id}")]
-pub async fn update_detail(
+pub async fn update_tech_stack(
     db: Data<MongoDB<TechStack>>,
     path: Path<String>,
-    new_detail: Json<TechStackUpdate>,
+    new_tech_stack: Json<TechStackUpdate>,
 ) -> HttpResponse {
-    crud_controller::update(db, path, new_detail).await
+    crud_controller::update(db, path, new_tech_stack).await
 }
 
 #[delete("/{id}")]
-pub async fn delete_detail(db: Data<MongoDB<TechStack>>, path: Path<String>) -> HttpResponse {
+pub async fn delete_tech_stack(db: Data<MongoDB<TechStack>>, path: Path<String>) -> HttpResponse {
     crud_controller::delete(db, path).await
 }
